@@ -1,0 +1,187 @@
+<script setup>
+import gameStore from '../stores/gameStore.js'
+import { submitChoice, redoLastChoice } from '../services/gameEngine.js'
+
+const toneColors = {
+  honest: 'var(--color-success)',
+  bold: 'var(--color-gold)',
+  cautious: 'var(--color-frost)',
+  evasive: 'var(--color-warning)',
+  deceptive: 'var(--color-danger)',
+  aggressive: 'var(--color-ember)',
+  neutral: 'var(--color-text-dim)',
+  diplomatic: 'var(--color-arcane-glow)',
+  compassionate: 'var(--color-success)',
+  curious: 'var(--color-frost)',
+  defiant: 'var(--color-ember)',
+}
+
+function getToneColor(tone) {
+  return toneColors[tone?.toLowerCase()] || 'var(--color-text-dim)'
+}
+
+function formatStatChange(stat, value) {
+  const sign = value > 0 ? '+' : ''
+  return `${stat} ${sign}${value}`
+}
+
+async function handleChoice(choiceId) {
+  if (gameStore.isAiThinking) return
+  try {
+    await submitChoice(choiceId)
+  } catch (e) {
+    console.error('Failed to submit choice:', e)
+  }
+}
+
+async function handleRedo() {
+  if (gameStore.isAiThinking) return
+  try {
+    await redoLastChoice()
+  } catch (e) {
+    console.error('Failed to redo:', e)
+  }
+}
+</script>
+
+<template>
+  <div v-if="!gameStore.isAiThinking && gameStore.currentChoices.length > 0" class="choices-enter-active">
+    <!-- Section Header -->
+    <div class="d-flex align-items-center gap-3 mt-5 mb-4">
+      <span class="text-uppercase small fw-medium" style="color: var(--color-text-muted); font-size: 0.7rem; letter-spacing: 0.12em;">Choose an action</span>
+      <div class="flex-grow-1" style="height: 1px; background: var(--color-border);"></div>
+      <!-- Redo Button (appears after the first choice has been made) -->
+      <button
+        v-if="gameStore.lastChosenChoice"
+        @click="handleRedo"
+        :disabled="gameStore.isAiThinking"
+        class="redo-btn d-flex align-items-center gap-2 flex-shrink-0"
+        title="Not happy with this direction? Ask the AI to try again with the same choice."
+      >
+        <!-- Retry icon -->
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/>
+        </svg>
+        Redo
+      </button>
+    </div>
+
+    <!-- Choice List -->
+    <div class="d-flex flex-column gap-3 pb-4">
+      <button
+        v-for="choice in gameStore.currentChoices"
+        :key="choice.id"
+        @click="handleChoice(choice.id)"
+        :disabled="gameStore.isAiThinking"
+        class="choice-btn text-start d-flex align-items-start gap-3 w-100"
+      >
+        <!-- Number Badge -->
+        <div
+          class="choice-badge flex-shrink-0 d-flex align-items-center justify-content-center rounded-2 fw-semibold"
+          :style="{
+            background: `${getToneColor(choice.tone)}18`,
+            color: getToneColor(choice.tone),
+          }"
+          style="width: 28px; height: 28px; font-size: 0.75rem; margin-top: 2px;"
+        >
+          {{ choice.id }}
+        </div>
+
+        <div class="flex-grow-1 min-w-0">
+          <!-- Choice Text -->
+          <p class="mb-2" style="color: var(--color-text); font-weight: 400; font-size: 0.95rem; line-height: 1.6;">
+            {{ choice.text }}
+          </p>
+
+          <!-- Tone + Stat Changes -->
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <!-- Tone Badge -->
+            <span
+              class="badge-pill"
+              :style="{
+                background: `${getToneColor(choice.tone)}18`,
+                color: getToneColor(choice.tone),
+              }"
+            >
+              {{ choice.tone }}
+            </span>
+
+            <!-- Stat Changes -->
+            <span
+              v-for="(value, stat) in (choice.statChanges || {})" :key="stat"
+              class="badge-pill"
+              :style="{
+                background: value > 0 ? 'rgba(48, 201, 138, 0.1)' : 'rgba(242, 106, 106, 0.1)',
+                color: value > 0 ? 'var(--color-success)' : 'var(--color-danger)',
+              }"
+            >
+              {{ formatStatChange(stat, value) }}
+            </span>
+          </div>
+        </div>
+      </button>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.choice-btn {
+  padding: 14px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  min-height: 56px;
+}
+
+.choice-btn:hover:not(:disabled) {
+  border-color: var(--color-border-light);
+  background: var(--color-surface-light);
+  transform: translateY(-1px);
+}
+
+.choice-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.choice-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.badge-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.redo-btn {
+  padding: 4px 10px;
+  background: rgba(250, 190, 80, 0.08);
+  border: 1px solid rgba(250, 190, 80, 0.2);
+  border-radius: 6px;
+  color: var(--color-gold, #fabe50);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.redo-btn:hover:not(:disabled) {
+  background: rgba(250, 190, 80, 0.16);
+  border-color: rgba(250, 190, 80, 0.4);
+  transform: translateY(-1px);
+}
+
+.redo-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+</style>

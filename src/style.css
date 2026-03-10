@@ -1,0 +1,199 @@
+/* ============================================
+   AI RPG Engine — Design System
+   ============================================ */
+
+:root {
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Background scale */
+  --color-midnight: #060810;
+  --color-deep: #0b0e18;
+  --color-surface: #111520;
+  --color-surface-light: #181d2e;
+  --color-border: #1e2333;
+  --color-border-light: #2a3148;
+
+  /* Accents */
+  --color-gold: #c9a84c;
+  --color-gold-dim: #8a6f35;
+  --color-gold-glow: #e0bc78;
+
+  --color-ember: #d05a42;
+  --color-ember-dim: #9e3f2e;
+
+  --color-arcane: #7c65c4;
+  --color-arcane-dim: #5e4f99;
+  --color-arcane-glow: #9e87df;
+
+  --color-frost: #4d8fa0;
+  --color-frost-dim: #366d7d;
+
+  /* Text */
+  --color-text: #eceef2;
+  --color-text-dim: #8d94a5;
+  --color-text-muted: #555d70;
+
+  /* Status */
+  --color-success: #30c98a;
+  --color-danger: #f26a6a;
+  --color-warning: #f5a623;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+html, body {
+  background-color: var(--color-midnight) !important;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-midnight) !important;
+  color: var(--color-text);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 60%, rgba(124, 101, 196, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(201, 168, 76, 0.025) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#app {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================
+   Bootstrap Overrides
+   ============================================ */
+
+/* Suppress Bootstrap bg tinting on containers */
+.container, .container-fluid {
+  background-color: transparent !important;
+}
+
+/* Bootstrap dark mode sets --bs-body-bg; force our own */
+[data-bs-theme] body {
+  background-color: var(--color-midnight) !important;
+  color: var(--color-text);
+}
+
+/* ============================================
+   Scrollbar
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-light);
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes typing-dot {
+  0%, 60%, 100% { opacity: 0.2; transform: scale(0.75); }
+  30%           { opacity: 1;   transform: scale(1); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* ============================================
+   Vue Transition Classes
+   ============================================ */
+
+.narrative-enter-active {
+  animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.choices-enter-active {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.stat-change-enter-active {
+  animation: fadeIn 0.35s ease-out;
+}
+
+/* ============================================
+   Spinner utility
+   ============================================ */
+
+.spin {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.spin-sm {
+  width: 0.875rem;
+  height: 0.875rem;
+}
