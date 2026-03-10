@@ -6,7 +6,7 @@
 
 import gameStore, { resetStore } from '../stores/gameStore.js'
 import { parseConfig } from '../utils/configParser.js'
-import { initChat, resumeChat, sendChoice } from '../services/aiService.js'
+import { initChat, resumeChat, sendChoice, hackMind } from '../services/aiService.js'
 import { saveGameState, loadGameState, clearGameState } from '../services/storageService.js'
 
 /**
@@ -113,6 +113,9 @@ export async function submitChoice(choiceId, customInput = '') {
   try {
     gameStore.error = null
 
+    // Clear mind reads when advancing turn
+    gameStore.currentMindReads = []
+
     // 1. Find the chosen option
     const chosenChoice = gameStore.currentChoices.find(c => c.id === choiceId)
     if (!chosenChoice) {
@@ -197,6 +200,9 @@ export async function submitChoice(choiceId, customInput = '') {
 export async function redoLastChoice() {
   try {
     gameStore.error = null
+
+    // Clear mind reads on redo
+    gameStore.currentMindReads = []
 
     // 1. Pop the last turn from history
     const lastTurn = gameStore.turnHistory.pop()
@@ -311,3 +317,35 @@ export function quitGame() {
   clearGameState()
   resetStore()
 }
+
+/**
+ * Handle hacking a character's mind
+ * @param {string} query — What the player wants to know
+ */
+export async function processMindRead(query) {
+  if (!query || query.trim() === '') return
+
+  try {
+    gameStore.error = null
+    gameStore.isAiThinking = true
+
+    const responseText = await hackMind(
+      query,
+      gameStore.config,
+      gameStore.apiKey,
+      gameStore.chatHistory
+    )
+
+    gameStore.currentMindReads.push({
+      query,
+      response: responseText
+    })
+
+    gameStore.isAiThinking = false
+  } catch (error) {
+    gameStore.isAiThinking = false
+    gameStore.error = error.message
+    throw error
+  }
+}
+

@@ -35,6 +35,7 @@ const gameStore = reactive({
   // --- Current Turn ---
   currentNarrative: '',
   currentChoices: [],
+  currentMindReads: [], // Array of { query, response } for the current turn
   isAiThinking: false,
   lastChosenChoice: null, // { id, text, tone, statChanges } — used for redo
 
@@ -68,6 +69,7 @@ export function resetStore() {
   gameStore.characterStats = {}
   gameStore.currentNarrative = ''
   gameStore.currentChoices = []
+  gameStore.currentMindReads = []
   gameStore.isAiThinking = false
   gameStore.lastChosenChoice = null
   gameStore.turnHistory = []

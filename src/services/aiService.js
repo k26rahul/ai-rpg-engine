@@ -63,13 +63,13 @@ Do not include any text outside the JSON object.`
 /**
  * Create a Gemini model instance with the given config and API key.
  */
-function createModel(apiKey, config) {
+function createModel(apiKey, config, isJson = true) {
   genAI = new GoogleGenerativeAI(apiKey)
 
   return genAI.getGenerativeModel({
     model: 'gemini-2.5-flash',
     generationConfig: {
-      responseMimeType: 'application/json',
+      responseMimeType: isJson ? 'application/json' : 'text/plain',
       temperature: 0.9,
     },
     safetySettings: [
@@ -162,6 +162,40 @@ export async function sendChoice(payload) {
       throw new Error('Network error. Please check your internet connection and try again.')
     }
 
+    throw error
+  }
+}
+
+/**
+ * Send a mind-reading query to the AI, bypassing the strict JSON format to get pure text thoughts.
+ */
+export async function hackMind(query, config, apiKey, chatHistory) {
+  if (!apiKey || apiKey.trim() === '') {
+    throw new Error('API key is required. Please enter your Gemini API key.')
+  }
+
+  // Use a model configured for plain text, not JSON
+  const model = createModel(apiKey, config, false)
+  
+  const mindReadPrompt = `The player is using a mind-reading ability to ask: "${query}". Respond with the current interacting character's inner thoughts in the first-person. You are unaware the player is reading your mind. Do not return JSON. Respond with ONLY the raw thoughts in plain text.`
+
+  // We want to generate content using the chat history context, but NOT as a chat session,
+  // so we don't pollute the main game history.
+  const contents = chatHistory.map(h => ({ role: h.role, parts: h.parts }))
+  contents.push({ role: 'user', parts: [{ text: mindReadPrompt }] })
+
+  try {
+    const result = await model.generateContent({ contents })
+    return result.response.text()
+  } catch (error) {
+    const msg = error.message || ''
+
+    if (msg.includes('429') || msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED')) {
+      throw new Error('API quota exceeded. Please wait a minute and try again.')
+    }
+    if (msg.includes('403') || msg.includes('PERMISSION_DENIED')) {
+      throw new Error('Invalid API key.')
+    }
     throw error
   }
 }

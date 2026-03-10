@@ -1,9 +1,10 @@
 <script setup>
 import { ref } from 'vue'
 import gameStore from '../stores/gameStore.js'
-import { submitChoice, redoLastChoice } from '../services/gameEngine.js'
+import { submitChoice, redoLastChoice, processMindRead } from '../services/gameEngine.js'
 
 const customInput = ref('')
+const mindReadInput = ref('')
 
 const toneColors = {
   honest: 'var(--color-success)',
@@ -43,10 +44,20 @@ async function handleRedo() {
     console.error('Failed to redo:', e)
   }
 }
+
+async function handleMindRead() {
+  if (gameStore.isAiThinking || !mindReadInput.value.trim()) return
+  try {
+    await processMindRead(mindReadInput.value.trim())
+    mindReadInput.value = ''
+  } catch (e) {
+    console.error('Failed to read mind:', e)
+  }
+}
 </script>
 
 <template>
-  <div v-if="!gameStore.isAiThinking && gameStore.currentChoices.length > 0" class="choices-enter-active">
+  <div v-if="gameStore.currentChoices.length > 0" class="choices-enter-active">
     <!-- Section Header -->
     <div class="d-flex align-items-center gap-3 mt-5 mb-4">
       <span class="text-uppercase small fw-medium" style="color: var(--color-text-muted); font-size: 0.7rem; letter-spacing: 0.12em;">Choose an action</span>
@@ -111,6 +122,43 @@ async function handleRedo() {
           </div>
         </div>
       </button>
+    </div>
+
+    <!-- Mind Read Section -->
+    <div class="mind-read-wrapper mb-4">
+      <label class="text-uppercase small fw-medium mb-2 d-block" style="color: var(--color-arcane-glow, #cda4ff); font-size: 0.7rem; letter-spacing: 0.12em;">
+        Mystic Ability: Read Mind
+      </label>
+      <div class="d-flex gap-2">
+        <textarea
+          v-model="mindReadInput"
+          placeholder="e.g. What are they hiding in their pockets?"
+          class="custom-input flex-grow-1"
+          style="min-height: 44px; padding: 8px 16px; resize: vertical;"
+          rows="1"
+          :disabled="gameStore.isAiThinking"
+        ></textarea>
+        <button
+          @click="handleMindRead"
+          :disabled="gameStore.isAiThinking || !mindReadInput.trim()"
+          class="mind-read-btn flex-shrink-0"
+          title="Peer into the character's thoughts..."
+        >
+          Hack Mind
+        </button>
+      </div>
+      
+      <!-- Mind Read Results -->
+      <div v-if="gameStore.currentMindReads && gameStore.currentMindReads.length > 0" class="mt-3 d-flex flex-column gap-2">
+        <div v-for="(read, index) in gameStore.currentMindReads" :key="index" class="mind-read-result p-3 rounded-2">
+          <p class="mb-1" style="font-size: 0.75rem; color: var(--color-text-muted);">
+            <span class="fw-medium">You asked:</span> "{{ read.query }}"
+          </p>
+          <p class="mb-0 fst-italic" style="color: var(--color-arcane-glow, #cda4ff); font-size: 0.9rem; line-height: 1.5;">
+            "{{ read.response }}"
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- Custom Input -->
@@ -215,5 +263,36 @@ async function handleRedo() {
 .custom-input:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.mind-read-btn {
+  padding: 0 20px;
+  background: rgba(147, 112, 219, 0.15);
+  border: 1px solid rgba(147, 112, 219, 0.4);
+  color: var(--color-arcane-glow, #cda4ff);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mind-read-btn:hover:not(:disabled) {
+  background: rgba(147, 112, 219, 0.25);
+  border-color: var(--color-arcane-glow, #cda4ff);
+  transform: translateY(-1px);
+}
+
+.mind-read-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.mind-read-result {
+  background: rgba(147, 112, 219, 0.05);
+  border-left: 3px solid var(--color-arcane-glow, #cda4ff);
 }
 </style>
