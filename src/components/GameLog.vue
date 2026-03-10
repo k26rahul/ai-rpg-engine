@@ -51,18 +51,10 @@ const isExpanded = ref(false)
             <p class="mb-2" style="font-size: 0.8rem; line-height: 1.55; color: var(--color-text);">
               {{ entry.chosenChoice.text }}
             </p>
-            <div class="d-flex flex-wrap gap-1">
-              <span
-                v-for="(value, stat) in (entry.chosenChoice.statChanges || {})" :key="stat"
-                class="stat-badge"
-                :style="{
-                  background: value > 0 ? 'rgba(48, 201, 138, 0.1)' : 'rgba(242, 106, 106, 0.1)',
-                  color: value > 0 ? 'var(--color-success)' : 'var(--color-danger)',
-                }"
-              >
-                {{ stat }} {{ value > 0 ? '+' : '' }}{{ value }}
-              </span>
-            </div>
+            <p v-if="entry.chosenChoice.customInput" class="mb-2 fst-italic" style="font-size: 0.75rem; line-height: 1.5; color: var(--color-text-muted);">
+              <span class="fw-medium">Custom: </span>{{ entry.chosenChoice.customInput }}
+            </p>
+
           </div>
         </div>
       </div>
@@ -107,11 +99,5 @@ const isExpanded = ref(false)
   border-radius: var(--radius-sm);
 }
 
-.stat-badge {
-  display: inline-block;
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 0.62rem;
-  font-weight: 500;
-}
+
 </style>

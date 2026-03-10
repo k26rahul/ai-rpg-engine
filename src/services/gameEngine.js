@@ -107,8 +107,9 @@ export async function resumeGame() {
 /**
  * Submit the player's choice and advance the turn
  * @param {number} choiceId — The ID of the chosen option
+ * @param {string} customInput — Optional custom dialogue or action
  */
-export async function submitChoice(choiceId) {
+export async function submitChoice(choiceId, customInput = '') {
   try {
     gameStore.error = null
 
@@ -139,6 +140,7 @@ export async function submitChoice(choiceId) {
         text: chosenChoice.text,
         tone: chosenChoice.tone,
         statChanges: chosenChoice.statChanges,
+        customInput: customInput,
       },
       statSnapshot: JSON.parse(JSON.stringify(gameStore.characterStats)),
       // Save chat history length before this turn so we can roll back
@@ -153,12 +155,14 @@ export async function submitChoice(choiceId) {
       text: chosenChoice.text,
       tone: chosenChoice.tone,
       statChanges: chosenChoice.statChanges,
+      customInput: customInput,
     }
 
     // 5. Send choice to AI
     const responseInfo = await sendChoice({
       choiceId: chosenChoice.id,
       choiceText: chosenChoice.text,
+      customInput: customInput,
     })
     const response = responseInfo.parsed
 
@@ -232,6 +236,7 @@ export async function redoLastChoice() {
     const responseInfo = await sendChoice({
       choiceId: lastTurn.chosenChoice.id,
       choiceText: lastTurn.chosenChoice.text,
+      customInput: lastTurn.chosenChoice.customInput,
     })
     const response = responseInfo.parsed
 

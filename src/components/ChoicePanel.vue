@@ -1,6 +1,9 @@
 <script setup>
+import { ref } from 'vue'
 import gameStore from '../stores/gameStore.js'
 import { submitChoice, redoLastChoice } from '../services/gameEngine.js'
+
+const customInput = ref('')
 
 const toneColors = {
   honest: 'var(--color-success)',
@@ -20,15 +23,13 @@ function getToneColor(tone) {
   return toneColors[tone?.toLowerCase()] || 'var(--color-text-dim)'
 }
 
-function formatStatChange(stat, value) {
-  const sign = value > 0 ? '+' : ''
-  return `${stat} ${sign}${value}`
-}
+
 
 async function handleChoice(choiceId) {
   if (gameStore.isAiThinking) return
   try {
-    await submitChoice(choiceId)
+    await submitChoice(choiceId, customInput.value)
+    customInput.value = ''
   } catch (e) {
     console.error('Failed to submit choice:', e)
   }
@@ -106,20 +107,24 @@ async function handleRedo() {
               {{ choice.tone }}
             </span>
 
-            <!-- Stat Changes -->
-            <span
-              v-for="(value, stat) in (choice.statChanges || {})" :key="stat"
-              class="badge-pill"
-              :style="{
-                background: value > 0 ? 'rgba(48, 201, 138, 0.1)' : 'rgba(242, 106, 106, 0.1)',
-                color: value > 0 ? 'var(--color-success)' : 'var(--color-danger)',
-              }"
-            >
-              {{ formatStatChange(stat, value) }}
-            </span>
+
           </div>
         </div>
       </button>
+    </div>
+
+    <!-- Custom Input -->
+    <div class="custom-input-wrapper mb-4">
+      <label class="text-uppercase small fw-medium mb-2 d-block" style="color: var(--color-text-muted); font-size: 0.7rem; letter-spacing: 0.12em;">
+        Optional: Add custom instructions or dialogue to your choice
+      </label>
+      <textarea
+        v-model="customInput"
+        placeholder="Type your own dialogue, actions, or specific instructions for the AI to include with the selected choice..."
+        class="custom-input w-100"
+        rows="2"
+        :disabled="gameStore.isAiThinking"
+      ></textarea>
     </div>
   </div>
 </template>
@@ -182,6 +187,33 @@ async function handleRedo() {
 
 .redo-btn:disabled {
   opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.custom-input {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  resize: vertical;
+  min-height: 60px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.custom-input:focus {
+  outline: none;
+  border-color: var(--color-border-light);
+  background: var(--color-surface-light);
+}
+
+.custom-input::placeholder {
+  color: var(--color-text-dim);
+}
+
+.custom-input:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 </style>

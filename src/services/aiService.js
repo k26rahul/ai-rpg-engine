@@ -5,7 +5,7 @@
  * Manages chat session, prompt construction, and response parsing.
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai'
 
 let genAI = null
 let chatSession = null
@@ -30,8 +30,10 @@ ${JSON.stringify(config.scene, null, 2)}
 ${JSON.stringify(config.rules, null, 2)}
 
 == YOUR JOB ==
+This is a dialogue-major RPG. You must customize your behavior, tone, and the game's style according to the custom instructions given by the user in the initial prompt.
+
 Each turn, you must:
-1. Write a narrative paragraph continuing the story. Write from a second-person perspective ("You see...", "You hear..."). Include dialogue and actions of non-player characters. React to the player's previous choice.
+1. Write a narrative block continuing the story. Write from a second-person perspective ("You see...", "You hear..."). You MUST write highly detailed dialogue and actions for the opposite non-player characters. The focus of the narrative is NOT on the player, but on the other characters. React to the player's previous choice. If the player provided a "customInput" with their choice, you MUST incorporate their custom instructions, actions, or dialogue into your narrative.
 2. Present exactly 5 choices for the player. Each choice must have:
    - A short text describing the action
    - A "tone" label (one word: e.g., bold, cautious, deceptive, honest, aggressive)
@@ -70,6 +72,24 @@ function createModel(apiKey, config) {
       responseMimeType: 'application/json',
       temperature: 0.9,
     },
+    safetySettings: [
+      {
+        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
+    ],
     systemInstruction: buildSystemPrompt(config),
   })
 }
