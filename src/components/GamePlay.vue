@@ -96,7 +96,7 @@ function updateApiKey() {
 
     <!-- Main Content -->
     <div class="container-fluid px-3 px-sm-4 mt-4 mt-sm-5 pb-5">
-      <div class="row g-4 g-lg-5 justify-content-center" style="max-width: 1400px; margin: 0 auto;">
+      <div class="content-row row g-4 g-lg-5 justify-content-center">
 
         <!-- Left Column: Narrative + Choices -->
         <div class="col-12 col-lg-8">
@@ -269,5 +269,10 @@ function updateApiKey() {
   color: var(--color-ember);
   border-radius: var(--radius-md);
   font-size: 0.875rem;
+}
+
+.content-row {
+  max-width: 1400px;
+  margin: 0 auto;
 }
 </style>

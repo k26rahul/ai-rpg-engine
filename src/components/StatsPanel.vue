@@ -34,10 +34,10 @@ const currentLocation = computed(() => {
   <div class="d-flex flex-column gap-4">
     <!-- Location -->
     <div class="location-card d-flex align-items-center gap-3">
-      <div class="location-dot flex-shrink-0" style="background: var(--color-gold);"></div>
+      <div class="location-dot flex-shrink-0"></div>
       <div class="min-w-0">
-        <p class="mb-1 text-uppercase fw-medium" style="font-size: 0.62rem; letter-spacing: 0.12em; color: var(--color-text-muted);">Location</p>
-        <p class="mb-0 fw-medium text-truncate" style="color: var(--color-text); font-family: var(--font-heading); font-size: 0.875rem;">
+        <p class="location-label mb-1 text-uppercase fw-medium">Location</p>
+        <p class="location-name mb-0 fw-medium text-truncate">
           {{ currentLocation }}
         </p>
       </div>
@@ -67,13 +67,12 @@ const currentLocation = computed(() => {
           </div>
           <div>
             <p
-              class="mb-0 fw-semibold"
-              style="font-size: 0.875rem; line-height: 1.2;"
+              class="char-name mb-0 fw-semibold"
               :style="{ color: char.isPlayer ? 'var(--color-gold-glow)' : 'var(--color-text)' }"
             >
               {{ char.name }}
             </p>
-            <p class="mb-0" style="font-size: 0.62rem; color: var(--color-text-muted); margin-top: 2px;">
+            <p class="char-role mb-0">
               {{ char.isPlayer ? 'Player' : 'NPC' }}
             </p>
           </div>
@@ -87,12 +86,12 @@ const currentLocation = computed(() => {
             class="stat-change-enter-active"
           >
             <div class="d-flex align-items-center justify-content-between mb-1">
-              <span class="text-capitalize" style="font-size: 0.8rem; color: var(--color-text-dim);">{{ statName }}</span>
-              <span class="fw-medium" style="font-family: monospace; font-size: 0.8rem;" :style="{ color: getStatColor(statName) }">
-                {{ value }}<span style="font-size: 0.65rem; opacity: 0.4;">/100</span>
+              <span class="stat-name text-capitalize">{{ statName }}</span>
+              <span class="stat-value fw-medium" :style="{ color: getStatColor(statName) }">
+                {{ value }}<span class="stat-denominator">/100</span>
               </span>
             </div>
-            <div class="stat-track rounded-pill overflow-hidden" style="background: var(--color-deep);">
+            <div class="stat-track rounded-pill overflow-hidden">
               <div
                 class="stat-fill rounded-pill"
                 :style="{
@@ -121,6 +120,7 @@ const currentLocation = computed(() => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  background: var(--color-gold);
   box-shadow: 0 0 5px var(--color-gold);
 }
 
@@ -137,9 +137,48 @@ const currentLocation = computed(() => {
 
 .stat-track {
   height: 4px;
+  background: var(--color-deep);
 }
 
 .stat-fill {
   height: 100%;
+}
+
+.location-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
+}
+
+.location-name {
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 0.875rem;
+}
+
+.char-name {
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+
+.char-role {
+  font-size: 0.62rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.stat-name {
+  font-size: 0.8rem;
+  color: var(--color-text-dim);
+}
+
+.stat-value {
+  font-family: monospace;
+  font-size: 0.8rem;
+}
+
+.stat-denominator {
+  font-size: 0.65rem;
+  opacity: 0.4;
 }
 </style>

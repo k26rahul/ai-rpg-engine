@@ -60,8 +60,8 @@ async function handleMindRead() {
   <div v-if="gameStore.currentChoices.length > 0" class="choices-enter-active">
     <!-- Section Header -->
     <div class="d-flex align-items-center gap-3 mt-5 mb-4">
-      <span class="text-uppercase small fw-medium" style="color: var(--color-text-muted); font-size: 0.7rem; letter-spacing: 0.12em;">Choose an action</span>
-      <div class="flex-grow-1" style="height: 1px; background: var(--color-border);"></div>
+      <span class="section-label text-uppercase small fw-medium">Choose an action</span>
+      <div class="section-divider flex-grow-1"></div>
       <!-- Redo Button (appears after the first choice has been made) -->
       <button
         v-if="gameStore.lastChosenChoice"
@@ -89,19 +89,18 @@ async function handleMindRead() {
       >
         <!-- Number Badge -->
         <div
-          class="choice-badge flex-shrink-0 d-flex align-items-center justify-content-center rounded-2 fw-semibold"
+          class="choice-badge choice-badge-inner flex-shrink-0 d-flex align-items-center justify-content-center rounded-2 fw-semibold"
           :style="{
             background: `${getToneColor(choice.tone)}18`,
             color: getToneColor(choice.tone),
           }"
-          style="width: 28px; height: 28px; font-size: 0.75rem; margin-top: 2px;"
         >
           {{ choice.id }}
         </div>
 
         <div class="flex-grow-1 min-w-0">
           <!-- Choice Text -->
-          <p class="mb-2" style="color: var(--color-text); font-weight: 400; font-size: 0.95rem; line-height: 1.6;">
+          <p class="choice-text mb-2">
             {{ choice.text }}
           </p>
 
@@ -126,15 +125,14 @@ async function handleMindRead() {
 
     <!-- Mind Read Section -->
     <div class="mind-read-wrapper mb-4">
-      <label class="text-uppercase small fw-medium mb-2 d-block" style="color: var(--color-arcane-glow, #cda4ff); font-size: 0.7rem; letter-spacing: 0.12em;">
+      <label class="mind-read-label text-uppercase small fw-medium mb-2 d-block">
         Mystic Ability: Read Mind
       </label>
       <div class="d-flex gap-2">
         <textarea
           v-model="mindReadInput"
           placeholder="e.g. What are they hiding in their pockets?"
-          class="custom-input flex-grow-1"
-          style="min-height: 44px; padding: 8px 16px; resize: vertical;"
+          class="custom-input mind-read-textarea flex-grow-1"
           rows="1"
           :disabled="gameStore.isAiThinking"
         ></textarea>
@@ -151,10 +149,10 @@ async function handleMindRead() {
       <!-- Mind Read Results -->
       <div v-if="gameStore.currentMindReads && gameStore.currentMindReads.length > 0" class="mt-3 d-flex flex-column gap-2">
         <div v-for="(read, index) in gameStore.currentMindReads" :key="index" class="mind-read-result p-3 rounded-2">
-          <p class="mb-1" style="font-size: 0.75rem; color: var(--color-text-muted);">
+          <p class="mind-read-query mb-1">
             <span class="fw-medium">You asked:</span> "{{ read.query }}"
           </p>
-          <p class="mb-0 fst-italic" style="color: var(--color-arcane-glow, #cda4ff); font-size: 0.9rem; line-height: 1.5;">
+          <p class="mind-read-response mb-0 fst-italic">
             "{{ read.response }}"
           </p>
         </div>
@@ -163,7 +161,7 @@ async function handleMindRead() {
 
     <!-- Custom Input -->
     <div class="custom-input-wrapper mb-4">
-      <label class="text-uppercase small fw-medium mb-2 d-block" style="color: var(--color-text-muted); font-size: 0.7rem; letter-spacing: 0.12em;">
+      <label class="custom-input-label text-uppercase small fw-medium mb-2 d-block">
         Optional: Add custom instructions or dialogue to your choice
       </label>
       <textarea
@@ -294,5 +292,58 @@ async function handleMindRead() {
 .mind-read-result {
   background: rgba(147, 112, 219, 0.05);
   border-left: 3px solid var(--color-arcane-glow, #cda4ff);
+}
+.section-label {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+}
+
+.section-divider {
+  height: 1px;
+  background: var(--color-border);
+}
+
+.choice-badge-inner {
+  width: 28px;
+  height: 28px;
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+.choice-text {
+  color: var(--color-text);
+  font-weight: 400;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.mind-read-label {
+  color: var(--color-arcane-glow, #cda4ff);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+}
+
+.mind-read-textarea {
+  min-height: 44px;
+  padding: 8px 16px;
+  resize: vertical;
+}
+
+.mind-read-query {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.mind-read-response {
+  color: var(--color-arcane-glow, #cda4ff);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.custom-input-label {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
 }
 </style>

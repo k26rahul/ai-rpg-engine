@@ -4,6 +4,7 @@ import { startGame, resumeGame } from '../services/gameEngine.js'
 import { loadApiKey, saveApiKey, hasSavedGame, loadGameState } from '../services/storageService.js'
 import gameStore from '../stores/gameStore.js'
 import ExternalAiPrompt from './ExternalAiPrompt.vue'
+import { sampleConfig as sampleConfigData } from '../utils/sampleConfig.js'
 
 const jsonInput = ref('')
 const apiKeyInput = ref('')
@@ -13,58 +14,7 @@ const hasSave = ref(false)
 const savedGameInfo = ref(null)
 
 // Sample config for quick testing
-const sampleConfig = JSON.stringify({
-  title: "The Locked Room",
-  characters: [
-    {
-      id: "hero",
-      name: "You",
-      isPlayer: true,
-      stats: { health: 100, trust: 50, courage: 60 },
-      personality: "A resourceful stranger who woke up in this house with no memory of how they got here."
-    },
-    {
-      id: "detective",
-      name: "Inspector Mira",
-      isPlayer: false,
-      stats: { suspicion: 30, trust: 60 },
-      personality: "Sharp, analytical, slow to trust but fiercely loyal once convinced.",
-      backstory: "Grew up on the streets, worked her way through the academy. Has seen too much to be easily surprised.",
-      decisionStyle: "Weighs evidence carefully. Trusts actions over words."
-    }
-  ],
-  locations: [
-    {
-      id: "old_house",
-      name: "The Old House on Maple Street",
-      description: "A creaking Victorian house. Dust covers every surface. The windows are boarded up, and the only door is locked from the outside. A single oil lamp flickers on the table.",
-      items: ["rusty key", "torn letter", "oil lamp", "dusty bookshelf"]
-    }
-  ],
-  scene: {
-    description: "A storm rages outside. You and Inspector Mira are trapped inside the old house. She paces nervously, glancing at the locked door. Lightning illuminates the room in brief flashes. You notice scratches on the floor near the bookshelf, as if something heavy was dragged recently.",
-    locationId: "old_house",
-    presentCharacters: ["hero", "detective"]
-  },
-  rules: {
-    statRules: {
-      trust: {
-        range: [0, 100],
-        effect: "When trust reaches 0, Inspector Mira turns hostile and refuses to cooperate. Above 80, she reveals a critical secret about the house."
-      },
-      suspicion: {
-        range: [0, 100],
-        effect: "When suspicion reaches 80+, Mira begins investigating YOU. At 100, she accuses you directly."
-      },
-      courage: {
-        range: [0, 100],
-        effect: "Below 20, certain bold options become unavailable. Above 80, you can attempt dangerous feats."
-      }
-    },
-    tone: "Dark mystery with moments of dark humor",
-    constraints: "Never break the fourth wall. Keep dialogue realistic and atmospheric. The house should feel alive and menacing."
-  }
-}, null, 2)
+const sampleConfig = JSON.stringify(sampleConfigData, null, 2)
 
 onMounted(() => {
   const savedKey = loadApiKey()
@@ -139,7 +89,7 @@ async function handleResume() {
       <!-- Header -->
       <div class="text-center pt-2">
         <h1 class="setup-heading mb-2">AI RPG Engine</h1>
-        <p class="mb-0" style="font-size: 0.875rem; color: var(--color-text-muted);">
+        <p class="setup-subheading mb-0">
           Configure a game world in JSON and start playing.
         </p>
       </div>
@@ -162,7 +112,7 @@ async function handleResume() {
             Connected
           </div>
         </div>
-        <p class="mb-0" style="font-size: 0.78rem; color: var(--color-text-muted); line-height: 1.6;">
+        <p class="api-hint mb-0">
           Get a key from
           <a
             href="https://aistudio.google.com/app/apikey"
@@ -180,9 +130,9 @@ async function handleResume() {
         class="resume-card d-flex flex-column flex-sm-row align-items-sm-center gap-3"
       >
         <div class="flex-grow-1 min-w-0">
-          <p class="mb-1 text-uppercase" style="font-size: 0.62rem; font-weight: 500; letter-spacing: 0.12em; color: var(--color-text-muted);">Saved game</p>
-          <p class="mb-1 fw-semibold text-truncate" style="font-size: 0.875rem; color: var(--color-text);">{{ savedGameInfo.title }}</p>
-          <p class="mb-0" style="font-size: 0.78rem; color: var(--color-text-muted);">Turn {{ savedGameInfo.turnCount }}</p>
+          <p class="resume-save-label mb-1 text-uppercase">Saved game</p>
+          <p class="resume-title mb-1 fw-semibold text-truncate">{{ savedGameInfo.title }}</p>
+          <p class="resume-turn mb-0">Turn {{ savedGameInfo.turnCount }}</p>
         </div>
         <button
           @click="handleResume"
@@ -206,7 +156,7 @@ async function handleResume() {
         <div class="editor-wrap">
           <!-- Editor top bar -->
           <div class="editor-topbar">
-            <span style="font-size: 0.75rem; font-family: monospace; color: var(--color-text-muted);">world.json</span>
+            <span class="editor-filename">world.json</span>
           </div>
 
           <textarea
@@ -244,10 +194,10 @@ async function handleResume() {
       </button>
 
       <!-- External AI Prompt Generator -->
-      <ExternalAiPrompt />
+      <ExternalAiPrompt :sampleConfig="sampleConfig" />
 
       <!-- Footer -->
-      <p class="text-center mb-0 mt-3" style="font-size: 0.78rem; color: var(--color-text-muted);">
+      <p class="footer-text text-center mb-0 mt-3">
         Powered by Google Gemini AI
       </p>
 
@@ -438,5 +388,44 @@ async function handleResume() {
 .start-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.setup-subheading {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.api-hint {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.resume-save-label {
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
+}
+
+.resume-title {
+  font-size: 0.875rem;
+  color: var(--color-text);
+}
+
+.resume-turn {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.editor-filename {
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: var(--color-text-muted);
+}
+
+.footer-text {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
 }
 </style>
